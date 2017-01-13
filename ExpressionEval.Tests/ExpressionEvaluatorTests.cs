@@ -176,6 +176,14 @@ namespace ExpressionEval.Tests
         }
 
         [Test]
+        public void Should_work_with_static_properties()
+        {
+            var actual = EvalRightPart<int>(x => x == StaticPropertyWith5Val);
+
+            Assert.AreEqual(5, actual);
+        }
+
+        [Test]
         public void Should_work_with_instance_properties()
         {
             InstanceProperty = 30;
@@ -286,6 +294,8 @@ namespace ExpressionEval.Tests
         {
             return 5;
         }
+
+        private static int StaticPropertyWith5Val { get { return 5; } }
 
         private int Increment(int val)
         {

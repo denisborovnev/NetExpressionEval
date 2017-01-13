@@ -23,7 +23,7 @@ namespace ExpressionEval
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            if(node.Expression.NodeType == ExpressionType.Constant)
+            if(node.Expression != null && node.Expression.NodeType == ExpressionType.Constant)
             {
                 var field = node.Member;
                 var arg = CreateArgument(field.DeclaringType);
