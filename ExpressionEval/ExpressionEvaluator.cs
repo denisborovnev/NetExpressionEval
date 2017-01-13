@@ -4,14 +4,14 @@ using System.Linq.Expressions;
 
 namespace ExpressionEval
 {
-    public class CachedExpressionEvaluator
+    public class ExpressionEvaluator
     {
         private ConcurrentDictionary<string, Func<object>> _funcsCache0 = new ConcurrentDictionary<string, Func<object>>();
         private ConcurrentDictionary<string, Func<object, object>> _funcsCache1 = new ConcurrentDictionary<string, Func<object, object>>();
         private ConcurrentDictionary<string, Func<object, object, object>> _funcsCache2 = new ConcurrentDictionary<string, Func<object, object, object>>();
         private ConcurrentDictionary<string, Func<object, object, object, object>> _funcsCache3 = new ConcurrentDictionary<string, Func<object, object, object, object>>();
 
-        public object GetValue(Expression expression)
+        public object Eval(Expression expression)
         {
             if(expression.NodeType == ExpressionType.Constant)
             {

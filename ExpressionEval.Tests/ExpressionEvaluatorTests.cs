@@ -6,14 +6,14 @@ using NUnit.Framework;
 namespace ExpressionEval.Tests
 {
     [TestFixture]
-    public class CachedExpressionEvaluatorTests
+    public class ExpressionEvaluatorTests
     {
-        private static CachedExpressionEvaluator _evaluator = new CachedExpressionEvaluator();
+        private static ExpressionEvaluator _evaluator = new ExpressionEvaluator();
 
         [Test]
         public void Should_work_with_literals()
         {
-            var actual = CachedEval<int>(x => x == 5);
+            var actual = EvalRightPart<int>(x => x == 5);
 
             Assert.AreEqual(5, actual);
         }
@@ -21,7 +21,7 @@ namespace ExpressionEval.Tests
         [Test]
         public void Should_work_with_inverted_literals()
         {
-            var actual = CachedEval<bool>(x => x == !true);
+            var actual = EvalRightPart<bool>(x => x == !true);
 
             Assert.AreEqual(false, actual);
         }
@@ -31,7 +31,7 @@ namespace ExpressionEval.Tests
         {
             var val = 5;
 
-            var actual = CachedEval<int>(x => x == val);
+            var actual = EvalRightPart<int>(x => x == val);
 
             Assert.AreEqual(5, actual);
         }
@@ -41,7 +41,7 @@ namespace ExpressionEval.Tests
         {
             var val = false;
 
-            var actual = CachedEval<bool>(x => x == !val);
+            var actual = EvalRightPart<bool>(x => x == !val);
 
             Assert.AreEqual(true, actual);
         }
@@ -52,7 +52,7 @@ namespace ExpressionEval.Tests
             var val1 = 5;
             var val2 = 10;
 
-            var actual = CachedEval<int>(x => x == (val1 + val2));
+            var actual = EvalRightPart<int>(x => x == (val1 + val2));
 
             Assert.AreEqual(15, actual);
         }
@@ -62,7 +62,7 @@ namespace ExpressionEval.Tests
         {
             var instance = new Outer { Val1 = 25 };
 
-            var actual = CachedEval<int>(x => x == instance.Val1);
+            var actual = EvalRightPart<int>(x => x == instance.Val1);
 
             Assert.AreEqual(25, actual);
         }
@@ -75,7 +75,7 @@ namespace ExpressionEval.Tests
                 Inner = new Inner { Val2 = 5 }
             };
 
-            var actual = CachedEval<int>(x => x == instance.Inner.Val2);
+            var actual = EvalRightPart<int>(x => x == instance.Inner.Val2);
 
             Assert.AreEqual(5, actual);
         }
@@ -85,7 +85,7 @@ namespace ExpressionEval.Tests
         {
             var outer = new Outer { Flag = true };
 
-            var actual = CachedEval<bool>(x => x == !outer.Flag);
+            var actual = EvalRightPart<bool>(x => x == !outer.Flag);
 
             Assert.AreEqual(false, actual);
         }
@@ -96,7 +96,7 @@ namespace ExpressionEval.Tests
             var outer = new Outer { Val1 = 3 };
             var inner = new Inner { Val2 = 2 };
 
-            var actual = CachedEval<int>(x => x == (outer.Val1 + inner.Val2));
+            var actual = EvalRightPart<int>(x => x == (outer.Val1 + inner.Val2));
 
             Assert.AreEqual(5, actual);
         }
@@ -106,7 +106,7 @@ namespace ExpressionEval.Tests
         {
             var outer = new Outer { Val1 = 3 };
 
-            var actual = CachedEval<int>(x => x == outer.GetVal1());
+            var actual = EvalRightPart<int>(x => x == outer.GetVal1());
 
             Assert.AreEqual(3, actual);
         }
@@ -119,7 +119,7 @@ namespace ExpressionEval.Tests
                 Inner = new Inner { Val2 = 4 }
             };
 
-            var actual = CachedEval<int>(x => x == outer.Inner.GetVal2());
+            var actual = EvalRightPart<int>(x => x == outer.Inner.GetVal2());
 
             Assert.AreEqual(4, actual);
         }
@@ -131,7 +131,7 @@ namespace ExpressionEval.Tests
 
             Func<object> eval = () =>
             {
-                return CachedEval<int>(x => x == val);
+                return EvalRightPart<int>(x => x == val);
             };
 
             Assert.AreEqual(5, eval());
@@ -144,7 +144,7 @@ namespace ExpressionEval.Tests
         public void Should_work_with_current_instance_method_call()
         {
             _instanceValue = 5;
-            var actual = CachedEval<int>(x => x == GetInstanceValue());
+            var actual = EvalRightPart<int>(x => x == GetInstanceValue());
 
             Assert.AreEqual(5, actual);
         }
@@ -153,7 +153,7 @@ namespace ExpressionEval.Tests
         public void Should_work_with_current_instance_method_called_with_variable_argument()
         {
             var val = 5;
-            var actual = CachedEval<int>(x => x == Increment(val));
+            var actual = EvalRightPart<int>(x => x == Increment(val));
 
             Assert.AreEqual(6, actual);
         }
@@ -162,7 +162,7 @@ namespace ExpressionEval.Tests
         public void Should_work_with_method_chain_calls()
         {
             _predefinedOuter = new Outer { Val1 = 30 };
-            var actual = CachedEval<int>(x => x == GetPredefinedOuter().GetVal1());
+            var actual = EvalRightPart<int>(x => x == GetPredefinedOuter().GetVal1());
 
             Assert.AreEqual(30, actual);
         }
@@ -170,9 +170,19 @@ namespace ExpressionEval.Tests
         [Test]
         public void Should_work_with_static_methods()
         {
-            var actual = CachedEval<int>(x => x == StaticGet5());
+            var actual = EvalRightPart<int>(x => x == StaticGet5());
 
             Assert.AreEqual(5, actual);
+        }
+
+        [Test]
+        public void Should_work_with_instance_properties()
+        {
+            InstanceProperty = 30;
+
+            var actual = EvalRightPart<int>(x => x == InstanceProperty);
+
+            Assert.AreEqual(30, actual);
         }
 
         [Test]
@@ -184,7 +194,7 @@ namespace ExpressionEval.Tests
             var x4 = 4;
             var x5 = 5;
 
-            var actual = CachedEval<int>(x => x == (x1 + x2 + x3 + x4 + x5));
+            var actual = EvalRightPart<int>(x => x == (x1 + x2 + x3 + x4 + x5));
 
             Assert.AreEqual(15, actual);
         }
@@ -194,7 +204,7 @@ namespace ExpressionEval.Tests
         {
             var i = 5;
 
-            Assert.Throws<InvalidOperationException>(() => CachedEval<int>(x => 10 == (x + i)));
+            Assert.Throws<InvalidOperationException>(() => EvalRightPart<int>(x => 10 == (x + i)));
         }
 
         [Test]
@@ -203,13 +213,13 @@ namespace ExpressionEval.Tests
         {
             var instance = new Outer { Val1 = 5 };
             //warm up
-            var result = CachedEval<int>(x => x == instance.Val1);
+            var result = EvalRightPart<int>(x => x == instance.Val1);
 
             var sw = Stopwatch.StartNew();
             for (int i = 0; i < 100000; i++)
             {
                 instance.Val1 = i;
-                CachedEval<int>(x => x == instance.Val1);
+                EvalRightPart<int>(x => x == instance.Val1);
             }
 
             sw.Stop();
@@ -235,13 +245,13 @@ namespace ExpressionEval.Tests
                 Inner = new Inner { Val2 = 1 }
             };
             //warm up
-            var result = CachedEval<int>(x => x == instance.Inner.Val2);
+            var result = EvalRightPart<int>(x => x == instance.Inner.Val2);
 
             var sw = Stopwatch.StartNew();
             for (int i = 0; i < 100000; i++)
             {
                 instance.Inner.Val2 = i;
-                CachedEval<int>(x => x == instance.Inner.Val2);
+                EvalRightPart<int>(x => x == instance.Inner.Val2);
             }
 
             sw.Stop();
@@ -257,6 +267,8 @@ namespace ExpressionEval.Tests
             sw.Stop();
             Console.WriteLine($"Recompile takes {sw.ElapsedMilliseconds}ms");
         }
+
+        private int InstanceProperty { get; set; }
 
         private int _instanceValue;
         private int GetInstanceValue()
@@ -304,10 +316,10 @@ namespace ExpressionEval.Tests
             }
         }
 
-        protected object CachedEval<TInput>(Expression<Func<TInput, bool>> expression)
+        protected object EvalRightPart<TInput>(Expression<Func<TInput, bool>> expression)
         {
             var body = (BinaryExpression)expression.Body;
-            return _evaluator.GetValue(body.Right);
+            return _evaluator.Eval(body.Right);
         }
 
         private object DynamicEval<TInput>(Expression<Func<TInput, bool>> expression)

@@ -40,7 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CachedExpressionEvaluator.cs" />
+    <Compile Include="ExpressionEvaluator.cs" />
     <Compile Include="ClosureArgsVisitor.cs" />
     <Compile Include="FuncBuilderVisitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
