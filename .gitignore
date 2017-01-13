@@ -1,0 +1,11 @@
+bin
+obj
+packages
+*.chw
+.idea
+*.user
+.idea*
+*.suo
+*.xap
+*.dbmdl
+.vs
